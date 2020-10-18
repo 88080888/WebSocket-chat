@@ -9,6 +9,7 @@ const socket = io();
 
 
 socket.on('message', ({ author, content }) => addMessage(author, content));
+socket.on('join', (user) => addMessage(user));
 
 
 let userName = '';
@@ -29,10 +30,10 @@ const login = event => {
   }
   else {
     userName = userNameInput.value;
-    console.log('userName:', userName);
     loginForm.classList.remove('show');
     messagesSection.classList.add('show');
   }
+  socket.emit('join', userName);
 };
 
 function sendMessage(e) {
@@ -54,10 +55,13 @@ function sendMessage(e) {
 const addMessage = (author, content) => {
   const message = document.createElement('li');
   message.classList.add('message', 'message--received');
-  if (author == userName) message.classList.add('message--self');
+  if(author === userName) message.classList.add('message--self');
+  if(author === 'Chat Bot') message.classList.add('chat--bot');
   message.innerHTML = `
-    <h3 class="message_author">${userName === author ? 'You' : author }</h3>
-    <div class="message_content">${content}</div>
+    <h3 class="message__author">${userName === author ? 'You' : author }</h3>
+    <div class="message__content">
+      ${content}
+    </div>
   `;
   messagesList.appendChild(message);
 };
